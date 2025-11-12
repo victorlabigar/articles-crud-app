@@ -46,17 +46,15 @@ export default async function Home() {
                 <small>
                   {new Date(article.createdAt).toLocaleString()}
                 </small>
+
+                <Link className={`${styles.btn} ${styles.btnSecondary}`} href={''}>
+                  Read article
+                </Link>
               </article>
             ))
           ): (
             <p>No articles found</p>
           )}
-
-          <article>
-            <h2>Article 1</h2>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt, nisi unde, laboriosam asperiores optio sapiente nihil quia doloremque ex facere recusandae? Molestiae, labore error. Sed dolor inventore architecto accusantium nesciunt.</p>
-          </article>
-
         </section>
        
       </main>
