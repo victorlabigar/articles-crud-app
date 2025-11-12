@@ -1,65 +1,64 @@
 import Image from "next/image";
+import prisma from '@/lib/prisma';
 import styles from "./page.module.css";
+import Link from "next/link";
 
-export default function Home() {
+async function getArticles() {
+  const articles = await prisma.article.findMany({
+    orderBy: { createdAt: 'desc'}
+  });
+
+  return articles;
+}
+
+export default async function Home() {
+
+  const articles = await getArticles();
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
+        <header className={styles.header}>
+          <Image
+            className={styles.logo}
+            src="/uncinc.svg"
+            alt="Unc Inc logo"
+            width={100}
+            height={20}
+            priority
+          />
+          <Link href={'new'} className={`${styles.btn} ${styles.btnPrimary}`} >New Article</Link>
+        </header>
+
         <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
+          <h1>My First CRUD App</h1>
           <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+            Here's a list of all our articles
           </p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <section className={styles.articles}>
+          {articles.length > 0 ? (
+            articles.map((article: any) => (
+              <article key={article.id}>
+                <h2>{article.title}</h2>
+                <p>{article.body.substring(0, 150)}...</p>
+                <small>
+                  {new Date(article.createdAt).toLocaleString()}
+                </small>
+              </article>
+            ))
+          ): (
+            <p>No articles found</p>
+          )}
+
+          <article>
+            <h2>Article 1</h2>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt, nisi unde, laboriosam asperiores optio sapiente nihil quia doloremque ex facere recusandae? Molestiae, labore error. Sed dolor inventore architecto accusantium nesciunt.</p>
+          </article>
+
+        </section>
+       
       </main>
     </div>
   );
