@@ -64,7 +64,7 @@ export default function NewArticlePage() {
                         height={20}
                         priority
                     />
-                    <Link href={'/'} className={`${styles.btn} ${styles.btnPrimary}`}>Home</Link>
+                    <Link href={'/'} className={`${styles.btn} ${styles.btnPrimary}`}>View Articles</Link>
                 </header>
 
                 <div className={styles.intro}>

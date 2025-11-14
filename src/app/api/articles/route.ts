@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const { title, body } = data;
+        const { title, body, author } = data;
 
         // Validation of the input
         if(!title) {
@@ -42,7 +42,8 @@ export async function POST(request: Request) {
         const newArticle = await prisma.article.create({
             data: {
                 title,
-                body
+                body,
+                author
             }
         });
 

@@ -47,7 +47,7 @@ export default async function Home() {
                   {new Date(article.createdAt).toLocaleString()}
                 </small>
 
-                <Link className={`${styles.btn} ${styles.btnSecondary}`} href={''}>
+                <Link className={`${styles.btn} ${styles.btnSecondary}`} href={`/articles/${article.id}`}>
                   Read article
                 </Link>
               </article>
