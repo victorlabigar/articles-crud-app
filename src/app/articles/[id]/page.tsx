@@ -1,9 +1,6 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma'; // Our "master key"
 import styles from '../../page.module.css'; // Re-use styles from home
-import Image from 'next/image';
-
 
 interface ArticlePageProps {
   params: {
@@ -18,7 +15,10 @@ async function getArticle(id: string) {
       where: {
         // We must convert the 'id' from the URL (which is a string)
         // into a number, because our database schema expects an Int.
-        id: parseInt(id, 10), 
+        id: parseInt(id, 10),
+      },
+      include: {
+        author: true, // Tell Prisma to also fetch the related Author
       },
     });
 
@@ -30,8 +30,15 @@ async function getArticle(id: string) {
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-    const { id } = params;
-    const article = await getArticle(id);
+    // 1. We must "await" the params object itself to unwrap it
+    const unwrappedParams = await params;
+
+    // 2. NOW we can safely access .id from the unwrapped object
+    const article = await getArticle(unwrappedParams.id);
+
+    console.log("--- SERVER LOG ---");
+    console.log("Article Data Received:", article);
+    console.log("--------------------");
 
     // 3. Handle "Not Found"
     // If no article is found with that ID, show the 404 page
@@ -42,29 +49,19 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     return (
         <div className={styles.page}>
             <main className={styles.main}>
-                <header className={styles.header}>
-                    <Image
-                        className={styles.logo}
-                        src="/uncinc.svg"
-                        alt="Unc Inc logo"
-                        width={100}
-                        height={20}
-                        priority
-                    />
-                    <Link href={'/'} className={`${styles.btn} ${styles.btnPrimary}`} >View All Article</Link>
-                </header>
-
-              
                 <section className={styles.articles}>
-                    <article key={article.id}>
-                        <h1>{article.title}</h1>
-                        <p>
-                            <small>{new Date(article.createdAt).toLocaleString()}</small>
-                        </p>
+                    <article className={styles.articleContent}>
+                      <h1>{article.title}</h1>
+                      <p>
+                        <small>
+                          By {article.author.name} | Published on:{' '}
+                          {new Date(article.createdAt).toLocaleString()}
+                        </small>
+                      </p>
 
-                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                            {article.body}
-                        </div>
+                      <div style={{ whiteSpace: 'pre-wrap' }}>
+                        {article.body}
+                      </div>
                     </article>
                 </section>
             

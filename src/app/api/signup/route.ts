@@ -8,9 +8,9 @@ export async function POST(request: Request) {
         // start validation
         // lets get the email and password from the body by destructering it
         const body = await request.json();
-        const { email, password } = body;
+        const { name, email, password } = body;
 
-        if(!email || !password) {
+        if(!email || !password || !name) {
             return NextResponse.json(
                 { error: 'Email and password are required' },
                 { status: 400}
@@ -36,12 +36,15 @@ export async function POST(request: Request) {
         const user = await prisma.user.create({
             data: {
                 email: email,
-                password: hashPassword
+                password: hashPassword,
+                name: name
             }
         });
 
+        console.log('user', user);
+
         return NextResponse.json(
-            { id: user.id, email: user.email },
+            { id: user.id, email: user.email, name: user.name },
             { status: 201 }
         )
         

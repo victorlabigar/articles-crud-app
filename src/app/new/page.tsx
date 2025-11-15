@@ -1,9 +1,8 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import styles from "../page.module.css";
+import { useSession } from 'next-auth/react';
 
 export default function NewArticlePage() {
 
@@ -15,7 +14,20 @@ export default function NewArticlePage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const router = useRouter(); 
+    // 1. Add session check
+    const { status } = useSession();
+    const router = useRouter();
+
+    // 2. Redirect if not logged in
+    if (status === 'unauthenticated') {
+        router.push('/login');
+        return null; // Don't render anything while redirecting
+    }
+
+    // 3. Show loading while checking
+    if (status === 'loading') {
+        return <p>Loading...</p>;
+    }
 
     // form submission
     const handleSubmit = async (event: React.FormEvent) => {
@@ -26,21 +38,20 @@ export default function NewArticlePage() {
         setError(''); 
 
         // send data to the API
-
         try {
             const response = await fetch('/api/articles', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({title, body})
+                body: JSON.stringify({title, body}),
+                credentials: 'include'
             })
 
             if (response.ok) {
                 setTitle('');
                 setBody('');
                 router.push('/');
-                // router.refresh();
             } else {
                 const data = await response.json();
                 setError(data.error || 'Failed to create article');
@@ -55,17 +66,6 @@ export default function NewArticlePage() {
     return (
         <div className={styles.page}>
             <main className={styles.main}>
-                <header className={styles.header}>
-                    <Image
-                        className={styles.logo}
-                        src="/uncinc.svg"
-                        alt="Unc Inc logo"
-                        width={100}
-                        height={20}
-                        priority
-                    />
-                    <Link href={'/'} className={`${styles.btn} ${styles.btnPrimary}`}>View Articles</Link>
-                </header>
 
                 <div className={styles.intro}>
                     <h1>Create New Article</h1>
