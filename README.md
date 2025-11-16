@@ -76,6 +76,7 @@ feat(BOL-123): setup and connection
 
 ## Step 2: Define the Prisma Schema
 - configure prisma by setting up the models in the schema
+- each article needs an `id` as its primary key in the database that needs be autoincremented upon each new article creation and so that we have a reference to get/fetch a certain article from the database and of course in the frontend.
 - in this phase i was stuck with the migrations of prisma and appearantly prisma needs to be able to create a shadow table on the remote host but my hosting provider doesnt allow that. I bypassed this by using `prisma db push`.
 
 ## Step 3: Setting up the API endpoints
