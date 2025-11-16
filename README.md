@@ -77,7 +77,18 @@ feat(BOL-123): setup and connection
 ## Step 2: Define the Prisma Schema
 - configure prisma by setting up the models in the schema
 - in this phase i was stuck with the migrations of prisma and appearantly prisma needs to be able to create a shadow table on the remote host but my hosting provider doesnt allow that. I bypassed this by using `prisma db push`.
-- 
+
+## Step 3: Setting up the API endpoints
+- create the api directory in `app/api/article` 
+- setup the get and post endppoints
+
+## Step 4: Create the basic UI
+- Homepage (list all articles)
+- Article page (view of full article)
+- Login page
+- Signup page
+- Create new article page 
+
 
 ### CSS
 I didn't gave much attention to the CSS since I was more focused on the functional side of the app then with the layout.
