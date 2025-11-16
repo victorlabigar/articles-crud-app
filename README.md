@@ -20,12 +20,32 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Project Goal
 
-Let's build a Articles app that users can manage by logging in. What we'll be using:
+Let's build a Articles app with authentication.
+
+**Acceptance Criteria**
 
 - Backend (API & MySQL) (Drupal/Laravel)
+  - GET /articles           → list of articles
+  - POST /articles          → create a new article
+  - PUT /articles/{id}      → edit an article
+  - DELETE /articles/{id}   → delete an article
 - Frontend (User Interface)
+  - User can all articles (Homepage)
+  - User can signup/register with validation (Signup Page)
+  - User can signin with validation
+  - User can create a new article (Create Article Page)
+  - User can edit a existing article (Edit Article Page)
+  - User can view an article (Article Page)
+  - User can logout (Redirects to Homepage)
+  - User can only view the Create Article Page when logged in
 
-I'm picking Next.js since it can handle both sides of the spectrum. And because I'm more familiar with React/Next.js then with Drupal or Laravel
+## Development Plan
+
+I'm picking Next.js with Prisma for the following reasons:
+- I'm the most familiar with React/Next.js
+- It can handle both the Frontend and Backend which is perfect
+- I don't have experience in Drupal and/or Laravel
+- 
 
 ## Blueprint
 
