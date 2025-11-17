@@ -1,84 +1,86 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import styles from "../../../page.module.css";
 import { useSession } from 'next-auth/react';
 import * as React from 'react';
 
 // get 'params' from the url `like {id: '1'}`
-export default function EditArticlePage( {params}: {params: { id: string}} ) {
+export default function EditArticlePage() {
 
     // define state variables that contains the form data
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
 
-    //  loading and error
+    // loading and error
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const [originalAuthorId, setOriginalAuthorId] = useState<number | null>(null);
-
-    // 1. Add session check
+    // Add session check
     const router = useRouter();
+    const params = useParams();
 
     const { data: session, status } = useSession(); // Get user session
 
-        // 2. useEffect to fetch the article data on page load
+    // useEffect to fetch the article data on page load
     useEffect(() => {
-        const { id } = params;
+        // Get 'id' from the hook's params object.
+        // It might be a string or string[], so we handle that.
+        const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
-        if (id) {
-            setLoading(true);
-            fetch(`/api/articles/${id}`, { method: 'GET' }) // We need a GET route!
+        // Don't do anything until we know the user's status
+        if (status === 'loading') {
+            return; // Wait for session to load
+        }
+
+        if (status === 'unauthenticated') {
+            router.push('/login'); // Not logged in
+            return;
+        }
+
+        // If we have an ID and the user is authenticated, fetch the data
+        if (id && status === 'authenticated') {
+            fetch(`/api/articles/${id}`, { method: 'GET' })
             .then((res) => {
                 if (!res.ok) {
-                    throw new Error('Failed to fetch article');
+                    throw new Error('Failed to fetch article data');
                 }
                 return res.json();
             })
             .then((data) => {
-                setTitle(data.title);
-                setBody(data.body);
-                setOriginalAuthorId(data.authorId);
-                setLoading(false);
+                const currentUserId = (session?.user as any)?.id;
+
+                
+                if (data.authorId !== parseInt(currentUserId)) {
+                    setError('You are not authorized to edit this article.');
+                    setLoading(false);
+                } else {
+                    console.log('data.body', data.body);
+                    setTitle(data.title);
+                    setBody(data.body); 
+                    setLoading(false); 
+                }
             })
             .catch((err) => {
                 setError(err.message);
                 setLoading(false);
             });
         }
-    }, [params]);
+    }, [params, status, session, router]);
 
-    // 3. Authorization Check (Client-side)
-    // Check if user is logged in and if they are the original author
-    const currentUserId = (session?.user as any)?.id;
-    
-    if (status === 'loading' || loading) {
-        return <main className={styles.main}><p>Loading...</p></main>;
-    }
-
-    if (status === 'unauthenticated') {
-        router.push('/login'); // Not logged in
-        return null;
-    }
-
-    if (status === 'authenticated' && currentUserId !== originalAuthorId) {
-        // Logged in, but NOT the author
-        setError('You are not authorized to edit this article.');
-    }
-
-    // 4. Handle the form submission (UPDATE)
+    // Handle the form submission (UPDATE)
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
+        const id = Array.isArray(params.id) ? params.id[0] : params.id;
+
         try {
-            // Send a PUT request to our update API
-            const res = await fetch(`/api/articles/${params.id}`, {
+            const res = await fetch(`/api/articles/${id}`, {
                 method: 'PUT',
                 headers: {
-                'Content-Type': 'application/json',
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ title, body }),
                 credentials: 'include', // Send cookies for auth
@@ -86,7 +88,7 @@ export default function EditArticlePage( {params}: {params: { id: string}} ) {
 
             if (res.ok) {
                 // Redirect back to the article page
-                router.push(`/articles/${params.id}`);
+                router.push(`/articles/${id}`);
                 router.refresh(); // Tell Next.js to re-fetch data
             } else {
                 const data = await res.json();
@@ -108,7 +110,7 @@ export default function EditArticlePage( {params}: {params: { id: string}} ) {
                 </div>
 
                 <form className={styles.form} onSubmit={handleSubmit}>
-                    {error &&<p className={styles.error}>{error}</p>}
+                    {error && <p className={styles.error}>{error}</p>}
 
                     <div className={styles.formGroup}>
                         <label htmlFor="title">Title</label>
@@ -133,9 +135,10 @@ export default function EditArticlePage( {params}: {params: { id: string}} ) {
                             onChange={(e) => setBody(e.target.value)}
                             disabled={loading || !!error}
                         ></textarea>
+                        {body}
                     </div>
                     <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={loading || !!error}>
-                        {loading ? 'Submitting...' : 'Create Article'}
+                        {loading ? 'Submitting...' : 'Save Article'}
                     </button>
                 </form>
             

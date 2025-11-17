@@ -4,12 +4,13 @@ import { getServerSession } from 'next-auth'; // Import this
 import { authOptions } from '@/lib/auth'; // Import our options
 
 interface RouteContext {
-    params: {
+    params: Promise<{
         id: string
-    }
+    }>
 }
 
-export async function PUT(request: Request, { params} : RouteContext) {
+export async function PUT(request: Request, props: RouteContext) {
+    const params = await props.params;
     try {
         // get loggedin user session
         const session = await getServerSession(authOptions);
@@ -77,29 +78,28 @@ export async function PUT(request: Request, { params} : RouteContext) {
 }
 
 // --- 2. GET Function (Get a single article) ---
-export async function GET(request: Request, { params }: RouteContext) {
-  try {
-    const articleId = parseInt(params.id, 10);
+export async function GET(request: Request, props: RouteContext) {
+    const params = await props.params;
+    try {
+        const articleId = parseInt(params.id, 10);
 
-    const article = await prisma.article.findUnique({
-        where: { id: articleId },
-        include: {
-            author: true, // We might as well get the author info
-        },
-    });
+        const article = await prisma.article.findUnique({
+            where: { id: articleId },
+            include: {
+                author: true, // We might as well get the author info
+            },
+        });
 
-    if (!article) {
-        return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+        if (!article) {
+            return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+        }
+
+        return NextResponse.json(article, { status: 200 });
+    } catch (error) {
+        return NextResponse.json(
+            { error: 'Failed to fetch article' },
+            { status: 500 }
+        );
     }
-
-    return NextResponse.json(article, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-        { error: 'Failed to fetch article' },
-        { status: 500 }
-    );
-  }
 }
 
-// --- 3. PUT Function (Update an article) ---
-// ... your existing PUT function ...

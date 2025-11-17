@@ -62,7 +62,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       {isAuthor && (
                         <Link
                           href={`/articles/${article.id}/edit`}
-                          style={{ color: 'red' }} // Pushes button to the right
+                          style={{ color: 'white' }} // Pushes button to the right
                         >
                           Edit Article
                         </Link>
