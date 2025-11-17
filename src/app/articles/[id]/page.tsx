@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma'; // Our "master key"
 import styles from '../../page.module.css'; // Re-use styles from home
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import Link from 'next/link';
 
 interface ArticlePageProps {
   params: {
@@ -36,9 +39,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     // 2. NOW we can safely access .id from the unwrapped object
     const article = await getArticle(unwrappedParams.id);
 
-    console.log("--- SERVER LOG ---");
-    console.log("Article Data Received:", article);
-    console.log("--------------------");
+    const session = await getServerSession(authOptions);
 
     // 3. Handle "Not Found"
     // If no article is found with that ID, show the 404 page
@@ -46,11 +47,27 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         notFound();
     }
 
+    const currentUserId = (session?.user as any)?.id;
+    const isAuthor = parseInt(currentUserId) === article.authorId;
+
+    console.log('isAuthor', isAuthor)
+    console.log('currentUserId', currentUserId)
+    console.log('article.authorId', article.authorId)
+
     return (
         <div className={styles.page}>
             <main className={styles.main}>
                 <section className={styles.articles}>
                     <article className={styles.articleContent}>
+                      {isAuthor && (
+                        <Link
+                          href={`/articles/${article.id}/edit`}
+                          style={{ color: 'red' }} // Pushes button to the right
+                        >
+                          Edit Article
+                        </Link>
+                      )}
+                      
                       <h1>{article.title}</h1>
                       <p>
                         <small>

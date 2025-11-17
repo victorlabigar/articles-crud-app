@@ -3,18 +3,27 @@
 ## Getting Started
 
 ```bash
+# use node version 22
+
 # Install the dependencies if its the first time
 npm i
 
+# This will look for the schema file and makes sure the remote database matches it
+npx prisma db push
+
 # Run npx prisma generate
+# This will manually generate the prisma client locally
 npx prisma generate
 
 # Start the app
 npm run dev
 
-# Start Prisma Studio to get a database GUI
+# Start Prisma Studio to get a database GUI locally
 npx prisma studio
+
 ```
+
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -107,24 +116,6 @@ I didn't gave much attention to the CSS since I was more focused on the function
 
 ### MySQL / Prisma
 I'm using a shared MySQL database on Cloud86 so migrations won't work because prisma needs to be able to create a shadow database. On my shared database at Cloud86.io that's not possible. To bypass this I'm just matching the remote database with my schema.prisma configuration where I've defined my database models.
-
-
-
-
-```bash
-# this will look for the schema file and makes sure the database match it
-npx prisma db push
-```
-
-```bash
-# this will manually generate the prisma client locally
-npx prisma generate
-```
-
-```bash
-# this will launch a local database GUI server
-npx prisma studio
-```
 
 
 ## Features
