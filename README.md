@@ -69,15 +69,26 @@ feat(BOL-123): setup and connection
 
 ## Step 1: Setup and DB Connection
 - create github repo
-- install a fresh next.js app
-- create a remote mysql on cloud86 (thats where I host my sites)
-- make sure the connection is created
+- install a fresh next.js app with `create-next-app`
+- create a remote mysql database on cloud86 (thats where I host most of my sites)
+- setup the database connection with prisma
 - remove some boilerplate code
 
 ## Step 2: Define the Prisma Schema
 - configure prisma by setting up the models in the schema
 - each article needs an `id` as its primary key in the database that needs be autoincremented upon each new article creation and so that we have a reference to get/fetch a certain article from the database and of course in the frontend.
 - in this phase i was stuck with the migrations of prisma and appearantly prisma needs to be able to create a shadow table on the remote host but my hosting provider doesnt allow that. I bypassed this by using `prisma db push`.
+
+```prisma
+model Article {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String   @db.Text // <-- @db.Text was missing and causing an issue I encountered later during development. Using just the String type to save this content is only writing max 255 characters in the database due to the default varchar255 datatype on Strings.
+  published Boolean? @default(false)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+```
 
 ## Step 3: Setting up the API endpoints
 - create the api directory in `app/api/article` 
